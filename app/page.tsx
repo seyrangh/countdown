@@ -6,6 +6,19 @@ import { motion, AnimatePresence } from "framer-motion";
 // Montreal time (EDT) - May 2, 2025 at 10:00 PM
 const targetDate = new Date("2025-05-02T22:00:00-04:00");
 
+// Define interface for heart properties
+interface HeartProps {
+  id: number;
+  fontSize: string;
+  left: string;
+  top: string;
+  opacity: number;
+  rotate: string;
+  floatDuration: string;
+  pulseDuration: string;
+  baseOpacity: number;
+}
+
 export default function Home() {
   // Time state management
   const [timeLeft, setTimeLeft] = useState<Record<string, number | null>>({
@@ -17,11 +30,8 @@ export default function Home() {
   const [isOver, setIsOver] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Heart animation state
-  const [hearts, setHearts] = useState<Array<any>>([]);
-
-  // Track device type for optimizations
-  const [isMobile, setIsMobile] = useState(false);
+  // Heart animation state with proper typing
+  const [hearts, setHearts] = useState<HeartProps[]>([]);
 
   function calculateTimeLeft() {
     const now = new Date().getTime();
@@ -46,8 +56,8 @@ export default function Home() {
   }
 
   // Generate hearts data
-  const generateHearts = () => {
-    const heartsData = [];
+  const generateHearts = (): HeartProps[] => {
+    const heartsData: HeartProps[] = [];
 
     for (let i = 0; i < 40; i++) {
       const size = Math.random() * 1.5 + 1;
@@ -78,79 +88,81 @@ export default function Home() {
     // Generate hearts on client-side only
     setHearts(generateHearts());
 
-    // Check if device is mobile
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("resize", checkMobile);
-    };
+    return () => clearInterval(timer);
   }, []);
 
-  // Units for display
   const timeUnits = [
-    { label: "days", short: "d", value: timeLeft.days },
-    { label: "hours", short: "h", value: timeLeft.hours },
-    { label: "minutes", short: "m", value: timeLeft.minutes },
-    { label: "seconds", short: "s", value: timeLeft.seconds },
+    { label: "days", value: timeLeft.days },
+    { label: "hours", value: timeLeft.hours },
+    { label: "minutes", value: timeLeft.minutes },
+    { label: "seconds", value: timeLeft.seconds },
   ];
 
-  // Smooth number animation variants
   const numberVariants = {
     initial: {
-      y: 20,
+      y: "100%",
       opacity: 0,
     },
     animate: {
       y: 0,
       opacity: 1,
       transition: {
-        y: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-        opacity: { duration: 0.3 },
+        type: "spring",
+        stiffness: 200,
+        damping: 20,
       },
     },
     exit: {
-      y: -20,
+      y: "-100%",
       opacity: 0,
       transition: {
-        y: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-        opacity: { duration: 0.3, ease: "easeInOut" },
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
       },
     },
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-pink-50 to-white">
-      <motion.div className="relative w-full max-w-5xl mx-auto px-4 py-8 z-10">
-        {isLoaded && (
-          <div className="heart-container">
-            {hearts.map((heart) => (
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-amber-50">
+      {/* Background hearts */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="heart-container">
+          {isLoaded &&
+            hearts.map((heart) => (
               <div
                 key={heart.id}
                 className="floating-heart"
-                style={{
-                  fontSize: heart.fontSize,
-                  left: heart.left,
-                  top: heart.top,
-                  opacity: heart.opacity,
-                  rotate: heart.rotate,
-                }}
+                style={
+                  {
+                    fontSize: heart.fontSize,
+                    left: heart.left,
+                    top: heart.top,
+                    opacity: heart.opacity,
+                    rotate: heart.rotate,
+                    "--float-duration": heart.floatDuration,
+                    "--pulse-duration": heart.pulseDuration,
+                    "--base-opacity": heart.baseOpacity,
+                  } as React.CSSProperties
+                }
               >
                 ❤️
               </div>
             ))}
-          </div>
-        )}
+        </div>
+      </div>
 
+      {/* Main content */}
+      <motion.div
+        className="relative z-10 w-full max-w-4xl mx-auto px-4 py-8 sm:py-12"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
         <AnimatePresence mode="wait">
           {!isOver ? (
             <motion.div
@@ -224,11 +236,11 @@ export default function Home() {
               </motion.div>
 
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-pink-700 mb-4 sm:mb-6">
-                We made it
+                Finally!
               </h1>
 
               <p className="text-lg sm:text-xl md:text-2xl text-gray-700 max-w-lg">
-                You're finally here, Alik
+                Let&apos;s have a good weekend!
               </p>
             </motion.div>
           )}
