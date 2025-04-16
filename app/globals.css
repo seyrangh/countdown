@@ -23,4 +23,112 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Enhanced floating animation */
+@keyframes float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(8px, -15px) rotate(3deg);
+  }
+  50% {
+    transform: translate(0, -30px) rotate(0deg);
+  }
+  75% {
+    transform: translate(-8px, -15px) rotate(-3deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+/* Subtle opacity pulse */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: var(--base-opacity, 0.15);
+  }
+  50% {
+    opacity: calc(var(--base-opacity, 0.15) * 1.5);
+  }
+}
+
+.heart-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.floating-heart {
+  position: absolute;
+  will-change: transform, opacity;
+  animation: float var(--float-duration, 20s) ease-in-out infinite,
+    pulse var(--pulse-duration, 6s) ease-in-out infinite;
+}
+
+.parallax-layer {
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px -5px rgba(236, 72, 153, 0.4);
+  }
+  to {
+    box-shadow: 0 0 20px 5px rgba(236, 72, 153, 0.6);
+  }
+}
+
+/* Smoother number change animation */
+@keyframes numberSlideIn {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes numberSlideOut {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.number-enter {
+  animation: numberSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.number-exit {
+  animation: numberSlideOut 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .floating-heart {
+    animation-duration: 15s, 4s;
+  }
 }
